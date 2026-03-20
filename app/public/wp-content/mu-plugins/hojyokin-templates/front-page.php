@@ -129,13 +129,13 @@ include __DIR__ . '/parts/header.php';
     <div class="absolute top-[60%] right-[10%] w-72 h-72 rounded-full opacity-10" style="background:radial-gradient(circle,#60a5fa,transparent)"></div>
     <div class="absolute top-[5%] left-[40%] w-48 h-48 rounded-full opacity-10" style="background:radial-gradient(circle,#a78bfa,transparent)"></div>
     <!-- 浮遊する通貨記号（増量） -->
-    <span class="absolute top-[8%] left-[18%] text-white/10 font-black hero-float" style="font-size:4rem;animation-delay:0s;">¥</span>
-    <span class="absolute top-[20%] right-[12%] text-white/8 font-black hero-float-2" style="font-size:3rem;animation-delay:1.5s;">¥</span>
-    <span class="absolute bottom-[18%] left-[8%] text-white/8 font-black hero-float-3" style="font-size:2.5rem;animation-delay:3s;">¥</span>
-    <span class="absolute bottom-[30%] right-[22%] text-white/6 font-black hero-float" style="font-size:5rem;animation-delay:2.5s;">¥</span>
-    <span class="absolute top-[45%] left-[35%] text-white/6 font-black hero-float-2" style="font-size:6rem;animation-delay:4s;">¥</span>
-    <span class="absolute top-[70%] right-[40%] text-white/5 font-black hero-float-3" style="font-size:3.5rem;animation-delay:1s;">¥</span>
-    <span class="absolute top-[5%] right-[38%] text-white/6 font-black hero-float" style="font-size:2rem;animation-delay:5s;">¥</span>
+    <span class="absolute top-[8%] left-[18%] font-black hero-float" style="font-size:4rem;animation-delay:0s;color:rgba(255,255,255,0.10);">¥</span>
+    <span class="absolute top-[20%] right-[12%] font-black hero-float-2" style="font-size:3rem;animation-delay:1.5s;color:rgba(255,255,255,0.08);">¥</span>
+    <span class="absolute bottom-[18%] left-[8%] font-black hero-float-3" style="font-size:2.5rem;animation-delay:3s;color:rgba(255,255,255,0.08);">¥</span>
+    <span class="absolute bottom-[30%] right-[22%] font-black hero-float" style="font-size:5rem;animation-delay:2.5s;color:rgba(255,255,255,0.06);">¥</span>
+    <span class="absolute top-[45%] left-[35%] font-black hero-float-2" style="font-size:6rem;animation-delay:4s;color:rgba(255,255,255,0.06);">¥</span>
+    <span class="absolute top-[70%] right-[40%] font-black hero-float-3" style="font-size:3.5rem;animation-delay:1s;color:rgba(255,255,255,0.05);">¥</span>
+    <span class="absolute top-[5%] right-[38%] font-black hero-float" style="font-size:2rem;animation-delay:5s;color:rgba(255,255,255,0.06);">¥</span>
     <!-- 補助金アイコン（浮遊・増量） -->
     <div class="absolute top-[15%] right-[8%] w-16 h-16 rounded-2xl flex items-center justify-center hero-float-2" style="animation-delay:0.5s;backdrop-filter:blur(4px);background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);">
       <svg class="w-8 h-8 text-white/40" viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
@@ -382,13 +382,13 @@ include __DIR__ . '/parts/header.php';
         <?php endif; ?>
       </div>
       <p class="subsidy-card__name group-hover:text-hj-primary transition-colors mb-3"><?php the_title(); ?></p>
-      <div class="flex items-baseline gap-2 mb-2">
+      <div class="flex items-center gap-2 mb-2 whitespace-nowrap overflow-hidden">
         <?php if ( $h_amount ) : ?>
-          <span class="subsidy-card__amount"><?php echo esc_html( hjnavi_format_amount( $h_amount ) ); ?></span>
-          <span class="text-xs text-hj-muted">上限</span>
+          <span class="subsidy-card__amount flex-shrink-0"><?php echo esc_html( hjnavi_format_amount( $h_amount ) ); ?></span>
+          <span class="text-xs text-hj-muted flex-shrink-0">上限</span>
         <?php endif; ?>
         <?php if ( $h_rate ) : ?>
-          <span class="subsidy-card__rate ml-auto">補助率 <?php echo esc_html( $h_rate ); ?></span>
+          <span class="subsidy-card__rate ml-auto truncate">補助率 <?php echo esc_html( $h_rate ); ?></span>
         <?php endif; ?>
       </div>
       <?php if ( $h_agency ) : ?>
@@ -425,12 +425,12 @@ include __DIR__ . '/parts/header.php';
           <?php echo hjnavi_status_badge( $p_status ); ?>
         </div>
         <p class="subsidy-card__name group-hover:text-hj-primary transition-colors mb-3"><?php the_title(); ?></p>
-        <div class="flex items-baseline gap-2 mb-2">
+        <div class="flex items-center gap-2 mb-2 whitespace-nowrap overflow-hidden">
           <?php if ( $p_amount ) : ?>
-            <span class="text-2xl font-black text-amber-600"><?php echo esc_html( hjnavi_format_amount( $p_amount ) ); ?></span>
+            <span class="text-2xl font-black flex-shrink-0" style="color:#dc2626;"><?php echo esc_html( hjnavi_format_amount( $p_amount ) ); ?></span>
           <?php endif; ?>
           <?php if ( $p_rate ) : ?>
-            <span class="text-xs text-hj-secondary ml-auto font-bold">補助率 <?php echo esc_html( $p_rate ); ?></span>
+            <span class="text-xs text-hj-secondary ml-auto font-bold truncate">補助率 <?php echo esc_html( $p_rate ); ?></span>
           <?php endif; ?>
         </div>
         <?php if ( $p_agency ) : ?>
@@ -470,15 +470,15 @@ include __DIR__ . '/parts/header.php';
         <?php endif; ?>
       </div>
       <p class="subsidy-card__name group-hover:text-hj-primary transition-colors mb-3"><?php the_title(); ?></p>
-      <div class="flex items-baseline gap-2 mb-3">
+      <div class="flex items-center gap-2 mb-3 whitespace-nowrap overflow-hidden">
         <?php if ( $ls_amount ) : ?>
-          <span class="subsidy-card__amount"><?php echo esc_html( hjnavi_format_amount( $ls_amount ) ); ?></span>
-          <span class="text-sm text-hj-muted">上限</span>
+          <span class="subsidy-card__amount flex-shrink-0"><?php echo esc_html( hjnavi_format_amount( $ls_amount ) ); ?></span>
+          <span class="text-sm text-hj-muted flex-shrink-0">上限</span>
         <?php else : ?>
           <span class="text-hj-muted text-sm">上限額 要確認</span>
         <?php endif; ?>
         <?php if ( $ls_rate ) : ?>
-          <span class="subsidy-card__rate ml-auto">補助率 <?php echo esc_html( $ls_rate ); ?></span>
+          <span class="subsidy-card__rate ml-auto truncate">補助率 <?php echo esc_html( $ls_rate ); ?></span>
         <?php endif; ?>
       </div>
       <?php if ( $ls_agency ) : ?>

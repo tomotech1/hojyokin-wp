@@ -178,7 +178,7 @@
   }
   .subsidy-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(26,107,60,.10); border-color:#B2D4BE; }
   .subsidy-card__name { @apply font-bold text-hj-dark text-base leading-snug no-underline; }
-  .subsidy-card__amount { @apply text-xl font-black text-hj-primary; }
+  .subsidy-card__amount { @apply text-xl font-black; color:#dc2626; }
   .subsidy-card__rate { @apply text-sm font-bold text-hj-muted; }
   .subsidy-card__deadline { @apply text-sm font-semibold text-orange-600; }
   .subsidy-card__tag { @apply text-sm font-bold text-hj-primary bg-green-50 px-2.5 py-1 rounded-full border border-green-100; }

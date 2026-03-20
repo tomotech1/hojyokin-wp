@@ -397,7 +397,7 @@ include __DIR__ . '/parts/header.php';
         <tr>
           <td class="font-bold text-hj-muted py-3.5 pr-5 w-36 align-top text-sm">上限補助額</td>
           <td class="py-3.5">
-            <span class="text-2xl font-black text-hj-primary"><?php echo esc_html( hjnavi_format_amount( $amount_max ) ); ?></span>
+            <span class="text-2xl font-black" style="color:#dc2626;"><?php echo esc_html( hjnavi_format_amount( $amount_max ) ); ?></span>
             <?php if ( $amount_rate ) : ?>
               <span class="ml-3 text-base font-bold text-hj-secondary">（補助率 <?php echo esc_html( $amount_rate ); ?>）</span>
             <?php endif; ?>
@@ -526,7 +526,7 @@ include __DIR__ . '/parts/header.php';
         <?php endif; ?>
         <?php if ( $official_url ) : ?>
           <a href="<?php echo esc_url( $official_url ); ?>" target="_blank" rel="noopener"
-             class="hj-auto-cta__btn" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);">
+             class="hj-auto-cta__btn" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;">
             🔗 公式サイトを確認する
           </a>
         <?php endif; ?>
@@ -860,9 +860,7 @@ include __DIR__ . '/parts/header.php';
           </div>
           <p class="font-black text-hj-dark group-hover:text-hj-primary transition-colors mb-2 text-base leading-snug"><?php the_title(); ?></p>
           <?php if ( $r_amount ) : ?>
-            <p class="text-lg font-black text-hj-primary">最大 <?php echo esc_html( hjnavi_format_amount( $r_amount ) ); ?>
-              <?php if ( $r_rate ) : ?><span class="text-sm font-bold text-hj-secondary ml-1">（<?php echo esc_html( $r_rate ); ?>）</span><?php endif; ?>
-            </p>
+            <p class="text-lg font-black whitespace-nowrap overflow-hidden text-ellipsis" style="color:#dc2626;">最大 <?php echo esc_html( hjnavi_format_amount( $r_amount ) ); ?><?php if ( $r_rate ) : ?><span class="text-sm font-bold ml-1" style="color:#1A6B3C;">（<?php echo esc_html( $r_rate ); ?>）</span><?php endif; ?></p>
           <?php endif; ?>
           <?php if ( $r_agency ) : ?>
             <p class="text-xs text-hj-muted mt-1">🏛 <?php echo esc_html( $r_agency ); ?></p>
@@ -876,10 +874,10 @@ include __DIR__ . '/parts/header.php';
   </main>
 
   <!-- サイドバー -->
-  <aside class="space-y-5 lg:block">
+  <aside class="space-y-5 lg:block" style="align-self:start;position:sticky;top:1.5rem;">
 
-    <!-- 申請ボタン（サイドバー・スティッキー） -->
-    <div class="sidebar-widget" style="background:linear-gradient(135deg,#0f3d21,#1A6B3C);border-color:rgba(255,255,255,0.15);position:sticky;top:1.5rem;">
+    <!-- 申請ボタン（サイドバー） -->
+    <div class="sidebar-widget" style="background:linear-gradient(135deg,#0f3d21,#1A6B3C);border-color:rgba(255,255,255,0.15);">
       <p class="text-lg font-black text-white mb-1">この補助金に申請</p>
       <div class="flex items-center gap-2 mb-3">
         <?php echo hjnavi_status_badge( $status ); ?>

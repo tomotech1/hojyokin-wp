@@ -339,7 +339,7 @@ include __DIR__ . '/parts/header.php';
     ?>
     <article class="subsidy-card no-underline group flex flex-col <?php echo $is_expired ? 'opacity-60' : ''; ?>">
 
-      <!-- ヘッダー: ステータス + 締切 + 年度 -->
+      <!-- ヘッダー: ステータス + 締切 + 年度 + お気に入り -->
       <div class="flex items-start justify-between gap-2 mb-3">
         <div class="flex items-center gap-1.5">
           <?php echo hjnavi_status_badge( $hj_status ); ?>
@@ -347,13 +347,19 @@ include __DIR__ . '/parts/header.php';
             <span class="text-xs text-hj-muted bg-hj-bg px-2 py-0.5 rounded"><?php echo esc_html( $hj_fiscal ); ?>年度</span>
           <?php endif; ?>
         </div>
-        <?php if ( $hj_dead && $hj_dead !== '随時' ) : ?>
-          <span class="text-xs flex-shrink-0 <?php echo hjnavi_deadline_alert( $hj_dead ) ? 'text-red-500 font-bold' : 'text-hj-muted'; ?>">
-            締切 <?php echo esc_html( $hj_dead ); ?>
-          </span>
-        <?php elseif ( $hj_dead === '随時' ) : ?>
-          <span class="text-xs text-green-600 flex-shrink-0">随時受付</span>
-        <?php endif; ?>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <?php if ( $hj_dead && $hj_dead !== '随時' ) : ?>
+            <span class="text-xs <?php echo hjnavi_deadline_alert( $hj_dead ) ? 'text-red-500 font-bold' : 'text-hj-muted'; ?>">
+              締切 <?php echo esc_html( $hj_dead ); ?>
+            </span>
+          <?php elseif ( $hj_dead === '随時' ) : ?>
+            <span class="text-xs text-green-600">随時受付</span>
+          <?php endif; ?>
+          <button class="hj-fav-btn" data-id="<?php the_ID(); ?>"
+                  onclick="hjToggleFav(this,event)"
+                  style="background:none;border:none;padding:2px 4px;cursor:pointer;font-size:1.1rem;line-height:1;color:#ccc;transition:color .2s;"
+                  aria-label="お気に入りに追加" title="お気に入り">♡</button>
+        </div>
       </div>
 
       <!-- 種別タグ -->
@@ -373,15 +379,15 @@ include __DIR__ . '/parts/header.php';
       </a>
 
       <!-- 金額・補助率 -->
-      <div class="flex items-baseline gap-2 mb-3 bg-hj-hero rounded-lg px-3 py-2">
+      <div class="flex items-center gap-2 mb-3 bg-hj-hero rounded-lg px-3 py-2 whitespace-nowrap overflow-hidden">
         <?php if ( $hj_amount ) : ?>
-          <span class="subsidy-card__amount text-hj-primary font-black"><?php echo esc_html( hjnavi_format_amount( $hj_amount ) ); ?></span>
-          <span class="text-xs text-hj-muted">上限</span>
+          <span class="subsidy-card__amount font-black flex-shrink-0" style="color:#dc2626;"><?php echo esc_html( hjnavi_format_amount( $hj_amount ) ); ?></span>
+          <span class="text-xs text-hj-muted flex-shrink-0">上限</span>
         <?php else : ?>
           <span class="text-hj-muted text-sm">上限額 要確認</span>
         <?php endif; ?>
         <?php if ( $hj_rate ) : ?>
-          <span class="text-sm font-semibold text-hj-primary ml-auto">補助率 <?php echo esc_html( $hj_rate ); ?></span>
+          <span class="text-sm font-semibold text-hj-primary ml-auto flex-shrink-0 truncate" style="max-width:50%;"><?php echo esc_html( $hj_rate ); ?></span>
         <?php endif; ?>
       </div>
 
@@ -483,7 +489,7 @@ include __DIR__ . '/parts/header.php';
           <td class="px-3 py-3 whitespace-nowrap">
             <?php if ( $sq_types && ! is_wp_error( $sq_types ) ) echo esc_html( $sq_types[0]->name ); ?>
           </td>
-          <td class="px-3 py-3 whitespace-nowrap font-bold text-hj-primary">
+          <td class="px-3 py-3 whitespace-nowrap font-bold" style="color:#dc2626;">
             <?php echo $hj_amount ? esc_html( hjnavi_format_amount( $hj_amount ) ) : '要確認'; ?>
           </td>
           <td class="px-3 py-3 whitespace-nowrap text-hj-muted">
@@ -521,7 +527,8 @@ include __DIR__ . '/parts/header.php';
 
   <!-- ページネーション -->
   <?php if ( $total_pages > 1 ) : ?>
-  <nav class="pagination mt-8 flex justify-center items-center flex-wrap gap-2" aria-label="ページネーション">
+  <nav class="pagination mt-8 w-full overflow-x-hidden" aria-label="ページネーション">
+  <div class="flex justify-center items-center flex-wrap gap-2">
     <?php
     $base_url = add_query_arg( array_filter( array(
       'status'      => $f_status,
@@ -560,7 +567,8 @@ include __DIR__ . '/parts/header.php';
          class="pagination__item px-4 py-2 border border-hj-border rounded-lg hover:bg-hj-primary hover:text-white hover:border-hj-primary transition-colors no-underline text-sm">次へ →</a>
     <?php endif; ?>
 
-    <span class="text-sm text-hj-muted ml-4"><?php echo $paged; ?>/<?php echo $total_pages; ?>ページ</span>
+  </div>
+  <p class="text-center text-sm text-hj-muted mt-2"><?php echo $paged; ?>/<?php echo $total_pages; ?>ページ</p>
   </nav>
   <?php endif; ?>
 
@@ -577,6 +585,41 @@ include __DIR__ . '/parts/header.php';
   <?php endif; ?>
 
 </div><!-- /main -->
+
+<!-- お気に入りJS -->
+<script>
+(function(){
+  const KEY = 'hj_favorites';
+  function getFavs() {
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e) { return []; }
+  }
+  function saveFavs(arr) {
+    localStorage.setItem(KEY, JSON.stringify(arr));
+  }
+  function applyFavUI(btn, isFav) {
+    btn.textContent = isFav ? '♥' : '♡';
+    btn.style.color  = isFav ? '#dc2626' : '#ccc';
+    btn.title        = isFav ? 'お気に入りから削除' : 'お気に入りに追加';
+  }
+  window.hjToggleFav = function(btn, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const id  = btn.dataset.id;
+    const favs = getFavs();
+    const idx  = favs.indexOf(id);
+    if (idx === -1) favs.push(id); else favs.splice(idx, 1);
+    saveFavs(favs);
+    applyFavUI(btn, idx === -1);
+  };
+  // ページ読み込み時に初期化
+  document.addEventListener('DOMContentLoaded', function() {
+    const favs = getFavs();
+    document.querySelectorAll('.hj-fav-btn').forEach(function(btn) {
+      applyFavUI(btn, favs.includes(btn.dataset.id));
+    });
+  });
+})();
+</script>
 
 <!-- ビュー切替JS -->
 <script>
