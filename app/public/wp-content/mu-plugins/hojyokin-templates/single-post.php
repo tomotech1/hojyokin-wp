@@ -254,7 +254,7 @@ include __DIR__ . '/parts/header.php';
           </div>
           <p class="font-black text-hj-dark group-hover:text-hj-primary transition-colors mb-2 text-base leading-snug"><?php the_title(); ?></p>
           <?php if ( $rs_amount ) : ?>
-            <p class="text-xl font-black text-hj-primary">最大 <?php echo esc_html( hjnavi_format_amount( $rs_amount ) ); ?></p>
+            <p class="text-xl font-black whitespace-nowrap overflow-hidden text-ellipsis" style="color:#dc2626;">最大 <?php echo esc_html( hjnavi_format_amount( $rs_amount ) ); ?></p>
           <?php endif; ?>
           <?php if ( $rs_agency ) : ?>
             <p class="text-xs text-hj-muted mt-1">🏛 <?php echo esc_html( $rs_agency ); ?></p>
