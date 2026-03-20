@@ -420,6 +420,12 @@ function hjnavi_template_include( $template ) {
 		if ( file_exists( $t ) ) return $t;
 	}
 
+	// カテゴリー・タグアーカイブ（ブログ系）
+	if ( is_category() || is_tag() ) {
+		$t = $template_dir . 'archive-blog.php';
+		if ( file_exists( $t ) ) return $t;
+	}
+
 	// 補助金種別・業種・目的 一覧ページ
 	if ( is_page( array( 'subsidy-type', 'subsidy-types', 'industry', 'purpose' ) ) ) {
 		$t = $template_dir . 'page-subsidy-types.php';
@@ -485,9 +491,9 @@ function hjnavi_status_badge( $status ) {
 		case '公募中':
 		case '募集中':
 		case '受付中':
-			// 緑：公募中・受付中
+			// 緑：公募中・受付中（点滅）
 			$style = 'display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;background:#dcfce7;color:#15803d;border:1px solid #86efac;';
-			$dot   = '<span style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px #bbf7d0;"></span>';
+			$dot   = '<span style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;animation:hjStatusPulse 1.4s ease-in-out infinite;"></span>';
 			break;
 		case '予定':
 			// 青：予定
@@ -693,7 +699,63 @@ function hjnavi_output_schema() {
 add_action( 'wp_head', 'hjnavi_output_schema' );
 
 // ============================================================
-// 10. rewrite フラッシュ（CPT/タクソノミー登録後）
+// 10. タクソノミーベースURL（/purpose/, /industry/）を補助金種別一覧ページにリダイレクト
+// ============================================================
+add_action( 'template_redirect', function() {
+	$req = trim( parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
+
+	// iCal ダウンロード処理
+	if ( isset( $_GET['hjcal'] ) && $_GET['hjcal'] === 'ics' ) {
+		$post_id = intval( $_GET['post'] ?? 0 );
+		if ( ! $post_id ) {
+			wp_die( 'Invalid request.' );
+		}
+		$title    = get_the_title( $post_id );
+		$deadline = get_post_meta( $post_id, 'hj_deadline', true );
+		$url      = get_permalink( $post_id );
+		$agency   = get_post_meta( $post_id, 'hj_agency', true );
+
+		// 締切日がある場合はその日付、ない場合は3ヶ月後をフォールバック
+		if ( $deadline && preg_match( '/(\d{4})[年\/\-](\d{1,2})[月\/\-](\d{1,2})/', $deadline, $dm ) ) {
+			$date    = sprintf( '%04d%02d%02d', $dm[1], $dm[2], $dm[3] );
+			$summary = $title . ' 申請締切';
+		} else {
+			$date    = date( 'Ymd', strtotime( '+3 months' ) );
+			$summary = $title . '（補助金nowでチェック）';
+		}
+		$uid = 'hjnavi-' . $post_id . '@hojyokin-now.jp';
+		$now = gmdate( 'Ymd\THis\Z' );
+
+		$ics  = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//補助金now//hojyokin-now.jp//JA\r\n";
+		$ics .= "X-WR-CALNAME:補助金now\r\n";
+		$ics .= "BEGIN:VEVENT\r\n";
+		$ics .= "UID:{$uid}\r\n";
+		$ics .= "DTSTAMP:{$now}\r\n";
+		$ics .= "DTSTART;VALUE=DATE:{$date}\r\n";
+		$ics .= "DTEND;VALUE=DATE:{$date}\r\n";
+		$ics .= "SUMMARY:{$summary}\r\n";
+		$ics .= "DESCRIPTION:実施機関: {$agency}\\n詳細: {$url}\r\n";
+		$ics .= "URL:{$url}\r\n";
+		$ics .= "END:VEVENT\r\nEND:VCALENDAR\r\n";
+
+		$filename = sanitize_file_name( $title ) . '.ics';
+		// iOS Safari は attachment を開けないため inline で配信
+		header( 'Content-Type: text/calendar; charset=UTF-8' );
+		header( 'Content-Disposition: inline; filename="' . $filename . '"' );
+		header( 'Content-Length: ' . strlen( $ics ) );
+		header( 'Cache-Control: no-cache, must-revalidate' );
+		echo $ics;
+		exit;
+	}
+
+	if ( $req === 'purpose' || $req === 'industry' ) {
+		wp_redirect( home_url( '/subsidy-types/' ), 301 );
+		exit;
+	}
+} );
+
+// ============================================================
+// 11. rewrite フラッシュ（CPT/タクソノミー登録後）
 // ============================================================
 
 /**

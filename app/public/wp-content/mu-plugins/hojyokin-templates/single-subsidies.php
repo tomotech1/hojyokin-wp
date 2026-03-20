@@ -84,10 +84,19 @@ include __DIR__ . '/parts/header.php';
 .faq-a { display:none; padding:0 1.25rem 1rem; font-size:1rem; color:#374151; line-height:1.7; }
 .faq-a.open { display:block; }
 .diff-star { display:inline-block; width:1.1rem; height:1.1rem; }
-.share-btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.5rem 1rem; border-radius:0.5rem; font-weight:700; font-size:1rem; text-decoration:none; transition:opacity 0.2s; }
+.share-btn { display:inline-flex; align-items:center; gap:0.3rem; padding:0.35rem 0.8rem; border-radius:99px; font-weight:700; font-size:0.75rem; text-decoration:none; transition:opacity 0.2s; white-space:nowrap; }
 .share-btn:hover { opacity:0.85; }
-.fav-btn { cursor:pointer; transition:all 0.2s; }
+.fav-btn { cursor:pointer; transition:all 0.2s; position:relative; overflow:visible; animation:hjFavAttract 2.4s ease-in-out infinite; background:#fff0f3 !important; border-color:#fecdd3 !important; color:#e11d48 !important; }
+.fav-btn.active { animation:none; background:#ffe4e6 !important; border-color:#fca5a5 !important; }
 .fav-btn.active svg { fill:#EF4444; stroke:#EF4444; }
+.fav-btn svg { stroke:#e11d48; }
+@keyframes hjFavAttract {
+  0%,100% { transform:scale(1); box-shadow:0 0 0 0 rgba(239,68,68,0), 0 2px 8px rgba(0,0,0,0.1); }
+  20%     { transform:scale(1.06); box-shadow:0 0 0 4px rgba(239,68,68,0.25), 0 4px 16px rgba(239,68,68,0.2); }
+  40%     { transform:scale(1); box-shadow:0 0 0 8px rgba(239,68,68,0), 0 2px 8px rgba(0,0,0,0.1); }
+  60%     { transform:scale(1.04); box-shadow:0 0 0 3px rgba(239,68,68,0.15), 0 4px 12px rgba(239,68,68,0.15); }
+  80%     { transform:scale(1); box-shadow:0 0 0 6px rgba(239,68,68,0), 0 2px 8px rgba(0,0,0,0.1); }
+}
 </style>
 
 <!-- パンくず -->
@@ -183,14 +192,128 @@ include __DIR__ . '/parts/header.php';
           <svg style="width:1rem;height:1rem;vertical-align:middle;margin-right:0.25rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
           お気に入り
         </button>
+
+        <?php
+        // カレンダーボタン（常時表示。締切日がある場合はその日付を使用、ない場合は今日から1ヶ月後）
+        $cal_title  = urlencode( get_the_title() . ' 申請締切' );
+        $cal_detail = urlencode( '補助金now | ' . get_permalink() );
+        $ical_url   = add_query_arg(['hjcal'=>'ics','post'=>$post_id,'nonce'=>wp_create_nonce('hjcal')], home_url('/'));
+        if ( $deadline && $deadline !== '随時' && preg_match('/(\d{4})[年\/\-](\d{1,2})[月\/\-](\d{1,2})/', $deadline, $cdm) ) {
+          $cal_date = sprintf('%04d%02d%02d', $cdm[1], $cdm[2], $cdm[3]);
+        } else {
+          // 締切日不明の場合: 3ヶ月後を仮の日付として使用
+          $cal_date = date('Ymd', strtotime('+3 months'));
+        }
+        // Yahoo!カレンダー（日本語）形式: YYYYMMDDTHHMMSS
+        $yahoo_date  = $cal_date . 'T000000';
+        $yahoo_edate = $cal_date . 'T235959';
+        $yahoo_url   = "https://calendar.yahoo.co.jp/?v=60&title={$cal_title}&ST={$yahoo_date}&ET={$yahoo_edate}&DESC={$cal_detail}&in_loc=";
+        // Outlook Web
+        $out_start   = substr($cal_date,0,4).'-'.substr($cal_date,4,2).'-'.substr($cal_date,6,2);
+        $outlook_url = "https://outlook.live.com/calendar/0/action/compose?subject={$cal_title}&startdt={$out_start}&enddt={$out_start}&body={$cal_detail}&allday=true";
+        $gcal_url    = "https://calendar.google.com/calendar/render?action=TEMPLATE&text={$cal_title}&dates={$cal_date}/{$cal_date}&details={$cal_detail}";
+        ?>
+        <div class="inline-block" id="hjCalDrop" style="margin-left:0.25rem;position:relative;">
+          <button id="hjCalBtn" class="btn-secondary" style="display:inline-flex;align-items:center;gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            カレンダーに追加
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <!-- カレンダードロップダウン（position:fixed でオーバーフロー回避） -->
+        <div id="hjCalMenu"
+             style="display:none;position:fixed;z-index:99999;background:#fff;border:1px solid #D1E7D9;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);min-width:210px;overflow:hidden;">
+          <a href="<?php echo esc_attr($gcal_url); ?>" target="_blank" rel="noopener"
+             style="display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;color:#222;text-decoration:none;border-bottom:1px solid #f5f5f5;"
+             onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background=''">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#4285F4"><path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"/></svg>
+            Google カレンダー
+          </a>
+          <a href="<?php echo esc_attr($yahoo_url); ?>" target="_blank" rel="noopener"
+             style="display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;color:#222;text-decoration:none;border-bottom:1px solid #f5f5f5;"
+             onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background=''">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#7B0099"><path d="M0 0l9.4 14.2V24h5.2v-9.8L24 0h-6.2l-5.4 8.7L7.1 0z"/></svg>
+            Yahoo! カレンダー
+          </a>
+          <a href="<?php echo esc_attr($outlook_url); ?>" target="_blank" rel="noopener"
+             style="display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;color:#222;text-decoration:none;border-bottom:1px solid #f5f5f5;"
+             onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background=''">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#0078D4"><path d="M24 12c0 6.627-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0s12 5.373 12 12zm-12-8a8 8 0 100 16A8 8 0 0012 4zm0 2a6 6 0 110 12A6 6 0 0112 6zm1 5V8h-2v4l3 3 1.4-1.4-2.4-2.6z"/></svg>
+            Outlook Web
+          </a>
+          <a href="#" id="hjIcalBtn"
+             style="display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:13px;font-weight:600;color:#222;text-decoration:none;"
+             onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background=''">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="#555"><path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v10z"/></svg>
+            Apple カレンダー / .ics
+          </a>
+        </div>
+        <script>
+        (function(){
+          var btn = document.getElementById('hjCalBtn');
+          var menu = document.getElementById('hjCalMenu');
+          if(!btn||!menu) return;
+          btn.addEventListener('click', function(e){
+            e.stopPropagation();
+            if(menu.style.display==='none'){
+              var r = btn.getBoundingClientRect();
+              menu.style.top  = (r.bottom + 4) + 'px';
+              menu.style.left = r.left + 'px';
+              menu.style.display = 'block';
+            } else {
+              menu.style.display = 'none';
+            }
+          });
+          document.addEventListener('click', function(){ menu.style.display='none'; });
+          window.addEventListener('scroll', function(){ menu.style.display='none'; }, {passive:true});
+
+          // Apple カレンダー: data:URI で ICS を生成（iOS/macOS Safari対応）
+          var icalBtn = document.getElementById('hjIcalBtn');
+          if(icalBtn){
+            icalBtn.addEventListener('click', function(e){
+              e.preventDefault();
+              var now = new Date().toISOString().replace(/[-:.]/g,'').slice(0,15)+'Z';
+              var lines = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//補助金now//JA',
+                'BEGIN:VEVENT',
+                'UID:hjnavi-<?php echo $post_id; ?>@hojyokin-now.jp',
+                'DTSTAMP:'+now,
+                'DTSTART;VALUE=DATE:<?php echo $cal_date; ?>',
+                'DTEND;VALUE=DATE:<?php echo $cal_date; ?>',
+                'SUMMARY:<?php echo esc_js( html_entity_decode( get_the_title(), ENT_QUOTES ) ); ?> 申請締切',
+                'URL:<?php echo esc_js( get_permalink() ); ?>',
+                'END:VEVENT',
+                'END:VCALENDAR'
+              ];
+              // iOS Safari: data URI で直接遷移するとカレンダーアプリが開く
+              var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+              if(isIOS){
+                window.location.href = 'data:text/calendar;charset=utf-8,' + encodeURIComponent(lines.join('\r\n'));
+              } else {
+                // デスクトップ: Blob でダウンロード
+                var blob = new Blob([lines.join('\r\n')], {type:'text/calendar;charset=utf-8'});
+                var url  = URL.createObjectURL(blob);
+                var a    = document.createElement('a');
+                a.href = url;
+                a.download = '<?php echo esc_js( sanitize_file_name( get_the_title() ) ); ?>.ics';
+                document.body.appendChild(a); a.click();
+                setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+              }
+            });
+          }
+        })();
+        </script>
+
         <?php if ( $official_url ) : ?>
           <a href="<?php echo esc_url( $official_url ); ?>" target="_blank" rel="noopener"
-             class="btn-secondary" style="margin-left:0.5rem;">
+             class="btn-secondary" style="margin-left:0.25rem;">
             🔗 公式サイト
           </a>
         <?php else : ?>
           <a href="https://www.google.com/search?q=<?php echo urlencode( get_the_title() ); ?>" target="_blank" rel="noopener"
-             class="btn-secondary" style="margin-left:0.5rem;">
+             class="btn-secondary" style="margin-left:0.25rem;">
             🔍 詳細を検索
           </a>
         <?php endif; ?>
@@ -219,7 +342,7 @@ include __DIR__ . '/parts/header.php';
     <!-- AI要約ボックス -->
     <?php if ( $excerpt ) : ?>
     <div class="hj-summary-box mb-6">
-      <div class="hj-summary-box__header">🤖 AI要約</div>
+      <div class="hj-summary-box__header">🤖 AIによる要約</div>
       <div class="hj-summary-box__body"><?php echo esc_html( $excerpt ); ?></div>
     </div>
     <?php endif; ?>
@@ -662,21 +785,33 @@ include __DIR__ . '/parts/header.php';
         <?php
         $share_title = urlencode( get_the_title() . ' | 補助金now' );
         $share_url   = urlencode( get_permalink() );
+        $share_raw_title = get_the_title() . ' | 補助金now';
+        $share_raw_url   = get_permalink();
         ?>
         <a href="https://twitter.com/intent/tweet?text=<?php echo $share_title; ?>&url=<?php echo $share_url; ?>"
-           target="_blank" rel="noopener" class="share-btn" style="background:#1DA1F2;color:#fff;">
-          <svg style="width:1rem;height:1rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+           target="_blank" rel="noopener" class="share-btn" style="background:#000;color:#fff;" title="X でシェア">
+          <svg style="width:0.85rem;height:0.85rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.402 6.231H2.745l7.73-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           Xでシェア
         </a>
         <a href="https://line.me/R/msg/text/?<?php echo $share_title; ?>%0A<?php echo $share_url; ?>"
-           target="_blank" rel="noopener" class="share-btn" style="background:#00B900;color:#fff;">
-          <svg style="width:1rem;height:1rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+           target="_blank" rel="noopener" class="share-btn" style="background:#00B900;color:#fff;" title="LINE でシェア">
+          <svg style="width:0.85rem;height:0.85rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
           LINEでシェア
         </a>
         <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $share_url; ?>"
-           target="_blank" rel="noopener" class="share-btn" style="background:#1877F2;color:#fff;">
-          <svg style="width:1rem;height:1rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+           target="_blank" rel="noopener" class="share-btn" style="background:#1877F2;color:#fff;" title="Facebook でシェア">
+          <svg style="width:0.85rem;height:0.85rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
           Facebookでシェア
+        </a>
+        <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo $share_url; ?>"
+           target="_blank" rel="noopener" class="share-btn" style="background:#0A66C2;color:#fff;" title="LinkedIn でシェア">
+          <svg style="width:0.85rem;height:0.85rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedInでシェア
+        </a>
+        <a href="mailto:?subject=<?php echo rawurlencode($share_raw_title); ?>&body=<?php echo rawurlencode($share_raw_title . "\n\n" . $share_raw_url); ?>"
+           class="share-btn" style="background:#555;color:#fff;" title="メールでシェア">
+          <svg style="width:0.85rem;height:0.85rem;" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          メールでシェア
         </a>
       </div>
     </div>

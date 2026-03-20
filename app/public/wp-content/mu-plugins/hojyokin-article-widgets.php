@@ -239,7 +239,7 @@ add_action( 'init', function () {
 		ob_start();
 		?>
 		<div class="hj-summary-box">
-			<div class="hj-summary-box__header">🤖 AI要約</div>
+			<div class="hj-summary-box__header">🤖 AIによる要約</div>
 			<div class="hj-summary-box__body"><?php echo esc_html( $text ); ?></div>
 		</div>
 		<?php
@@ -283,20 +283,36 @@ add_action( 'init', function () {
 		return ob_get_clean();
 	} );
 
-	/* ---------- [hj_cta url="#" text="..." color="green|amber|blue"] ---------- */
+	/* ---------- [hj_cta title="..." text="..." link="#" button="..." url="#" color="green|amber|blue"] ---------- */
 	add_shortcode( 'hj_cta', function ( $atts ) {
 		$atts = shortcode_atts( array(
-			'url'   => '#',
-			'text'  => '補助金一覧を見る →',
-			'color' => 'green',
+			'title'  => '',
+			'text'   => '',
+			'link'   => '',
+			'url'    => '',      // linkの別名
+			'button' => '補助金一覧を見る →',
+			'color'  => 'green',
 		), $atts, 'hj_cta' );
-		$color = in_array( $atts['color'], array( 'green', 'amber', 'blue' ) ) ? $atts['color'] : 'green';
+		$color  = in_array( $atts['color'], array( 'green', 'amber', 'blue' ) ) ? $atts['color'] : 'green';
+		$href   = $atts['link'] ?: $atts['url'] ?: '/subsidies/';
+		$colors = array(
+			'green' => array( 'bg' => 'linear-gradient(135deg,#1A6B3C,#155830)', 'btn' => '#F59E0B' ),
+			'amber' => array( 'bg' => 'linear-gradient(135deg,#F59E0B,#D97706)', 'btn' => '#1A6B3C' ),
+			'blue'  => array( 'bg' => 'linear-gradient(135deg,#1A56DB,#1648C0)', 'btn' => '#F59E0B' ),
+		);
+		$c = $colors[ $color ];
 		ob_start();
 		?>
-		<div class="hj-cta-wrap">
-			<a href="<?php echo esc_url( $atts['url'] ); ?>"
-			   class="hj-cta-btn hj-cta-btn--<?php echo esc_attr( $color ); ?>">
-				<?php echo esc_html( $atts['text'] ); ?>
+		<div style="background:<?php echo esc_attr( $c['bg'] ); ?>;border-radius:14px;padding:1.4rem 1.6rem;margin:1.5rem 0;text-align:center;">
+			<?php if ( $atts['title'] ) : ?>
+			<p style="color:#fff;font-size:16px;font-weight:800;margin:0 0 0.4rem;"><?php echo esc_html( $atts['title'] ); ?></p>
+			<?php endif; ?>
+			<?php if ( $atts['text'] ) : ?>
+			<p style="color:rgba(255,255,255,0.88);font-size:13px;margin:0 0 0.8rem;"><?php echo esc_html( $atts['text'] ); ?></p>
+			<?php endif; ?>
+			<a href="<?php echo esc_url( $href ); ?>"
+			   style="display:inline-block;background:#fff;color:<?php echo esc_attr( $c['bg'] ); ?>;font-size:14px;font-weight:800;padding:0.55rem 1.6rem;border-radius:99px;text-decoration:none;">
+				<?php echo esc_html( $atts['button'] ); ?>
 			</a>
 		</div>
 		<?php

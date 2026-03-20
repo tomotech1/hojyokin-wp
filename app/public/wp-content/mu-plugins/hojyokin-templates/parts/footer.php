@@ -14,16 +14,18 @@
   </div>
 
   <div class="site-footer__inner">
-    <!-- メニュー -->
+    <!-- メニュー＋サイトについて（統合） -->
     <div>
       <p class="footer-heading">メニュー</p>
       <a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="footer-link">ホーム</a>
       <a href="<?php echo esc_url( home_url( '/subsidies/' ) ); ?>" class="footer-link">補助金一覧</a>
       <a href="<?php echo esc_url( home_url( '/subsidies/?meta_key=hj_status&meta_value=募集中' ) ); ?>" class="footer-link">募集中の補助金</a>
       <a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>" class="footer-link">コラム</a>
-      <a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="footer-link">申請サポート</a>
       <a href="<?php echo esc_url( home_url( '/shindan/' ) ); ?>" class="footer-link">補助金診断</a>
       <a href="<?php echo esc_url( home_url( '/favorites/' ) ); ?>" class="footer-link">お気に入りリスト</a>
+      <a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="footer-link">申請サポート・相談</a>
+      <a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" class="footer-link">利用規約</a>
+      <a href="<?php echo esc_url( home_url( '/privacy/' ) ); ?>" class="footer-link">プライバシーポリシー</a>
     </div>
 
     <!-- 補助金種別 -->
@@ -73,13 +75,26 @@
       <?php endif; ?>
     </div>
 
-    <!-- サイトについて -->
+    <!-- 公的機関・関連リンク -->
     <div>
-      <p class="footer-heading">サイトについて</p>
-      <a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" class="footer-link">利用規約</a>
-      <a href="<?php echo esc_url( home_url( '/privacy/' ) ); ?>" class="footer-link">プライバシーポリシー</a>
-      <a href="<?php echo esc_url( home_url( '/contact/' ) ); ?>" class="footer-link">お問い合わせ</a>
-      <a href="<?php echo esc_url( home_url( '/subsidies/' ) ); ?>" class="footer-link">補助金を探す</a>
+      <p class="footer-heading">公的機関・関連リンク</p>
+      <?php
+      $official_links = array(
+        array( 'https://www.chusho.meti.go.jp/', '中小企業庁' ),
+        array( 'https://jgrants-portal.go.jp/', 'jGrants（補助金申請システム）' ),
+        array( 'https://www.meti.go.jp/', '経済産業省' ),
+        array( 'https://www.jfc.go.jp/', '日本政策金融公庫' ),
+        array( 'https://www.nta.go.jp/', '国税庁' ),
+        array( 'https://www.j-smeca.jp/', '中小企業診断士協会' ),
+        array( 'https://www.smrj.go.jp/', '中小機構（中小企業基盤整備機構）' ),
+        array( 'https://www.mhlw.go.jp/', '厚生労働省' ),
+      );
+      foreach ( $official_links as $ol ) : ?>
+        <a href="<?php echo esc_url( $ol[0] ); ?>" target="_blank" rel="noopener noreferrer" class="footer-link" style="display:flex;align-items:center;gap:5px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;opacity:0.45;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <?php echo esc_html( $ol[1] ); ?>
+        </a>
+      <?php endforeach; ?>
     </div>
   </div>
 
@@ -135,6 +150,36 @@
       }
     });
   });
+})();
+</script>
+
+<!-- お気に入りまとめ相談: contactページでフォーム自動入力 -->
+<script>
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  if(params.get('hj_bulk') === '1'){
+    var favIds = params.get('hj_favs') ? params.get('hj_favs').split(',') : [];
+    try {
+      var stored = JSON.parse(localStorage.getItem('hj_favorites')||'[]');
+      if(stored.length > 0 && favIds.length === 0) favIds = stored;
+    } catch(e){}
+    // CF7 textarea (wpcf7-textarea) または input[name="your-message"] に自動入力
+    function fillForm(){
+      var ta = document.querySelector('textarea[name="your-message"], .wpcf7-textarea, textarea');
+      if(ta && favIds.length > 0){
+        var msg = '【お気に入り補助金 まとめ相談】\n以下の補助金について詳しく教えてください。\n\n';
+        favIds.forEach(function(id,i){ msg += (i+1)+'. 補助金ID: '+id+'\n'; });
+        msg += '\n---\nご質問や相談内容をご記入ください：\n';
+        if(!ta.value) ta.value = msg;
+      }
+    }
+    // DOM ready後に実行
+    if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', fillForm); }
+    else { fillForm(); }
+    // wpcf7初期化後も試みる
+    document.addEventListener('wpcf7mailsent', function(){});
+    setTimeout(fillForm, 1000);
+  }
 })();
 </script>
 

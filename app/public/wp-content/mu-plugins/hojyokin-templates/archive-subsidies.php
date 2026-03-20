@@ -18,7 +18,7 @@ $f_order    = isset( $_GET['orderby'] )  ? sanitize_text_field( $_GET['orderby']
 $f_s        = isset( $_GET['s'] )        ? sanitize_text_field( $_GET['s'] )        : '';
 $f_amount   = isset( $_GET['amount_min'] ) ? intval( $_GET['amount_min'] ) : 0;
 
-$paged    = max( 1, get_query_var( 'paged' ) );
+$paged    = max( 1, get_query_var( 'paged' ) ?: ( isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1 ) );
 $per_page = 18;
 
 // ── クエリ構築 ──────────────────────────────────────────────────────────────
@@ -534,14 +534,20 @@ include __DIR__ . '/parts/header.php';
       'amount_min'  => $f_amount ?: '',
     ) ), $current_term ? get_term_link( $current_term ) : home_url( '/subsidies/' ) );
 
+    // ページURL生成（フィルター条件を保持）
+    function hjnavi_page_url( $base, $p ) {
+      if ( $p <= 1 ) return remove_query_arg( 'paged', $base );
+      return add_query_arg( 'paged', $p, $base );
+    }
+
     if ( $paged > 1 ) :
     ?>
-      <a href="<?php echo esc_url( get_pagenum_link( $paged - 1 ) ); ?>"
+      <a href="<?php echo esc_url( hjnavi_page_url( $base_url, $paged - 1 ) ); ?>"
          class="pagination__item px-4 py-2 border border-hj-border rounded-lg hover:bg-hj-primary hover:text-white hover:border-hj-primary transition-colors no-underline text-sm">← 前へ</a>
     <?php endif; ?>
 
     <?php for ( $p = max( 1, $paged - 2 ); $p <= min( $total_pages, $paged + 2 ); $p++ ) : ?>
-      <a href="<?php echo esc_url( get_pagenum_link( $p ) ); ?>"
+      <a href="<?php echo esc_url( hjnavi_page_url( $base_url, $p ) ); ?>"
          class="pagination__item px-4 py-2 border rounded-lg transition-colors no-underline text-sm
                 <?php echo $p === $paged ? 'bg-hj-primary text-white border-hj-primary font-bold' : 'border-hj-border hover:bg-hj-primary hover:text-white hover:border-hj-primary'; ?>"
          <?php echo $p === $paged ? 'aria-current="page"' : ''; ?>>
@@ -550,7 +556,7 @@ include __DIR__ . '/parts/header.php';
     <?php endfor; ?>
 
     <?php if ( $paged < $total_pages ) : ?>
-      <a href="<?php echo esc_url( get_pagenum_link( $paged + 1 ) ); ?>"
+      <a href="<?php echo esc_url( hjnavi_page_url( $base_url, $paged + 1 ) ); ?>"
          class="pagination__item px-4 py-2 border border-hj-border rounded-lg hover:bg-hj-primary hover:text-white hover:border-hj-primary transition-colors no-underline text-sm">次へ →</a>
     <?php endif; ?>
 

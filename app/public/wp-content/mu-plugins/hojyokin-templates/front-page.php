@@ -107,8 +107,10 @@ include __DIR__ . '/parts/header.php';
 @keyframes heroFloat2 { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-18px); } }
 .hero-float-3 { animation: heroFloat3 5s ease-in-out infinite; }
 @keyframes heroFloat3 { 0%,100% { transform:translateY(0) scale(1); } 50% { transform:translateY(-8px) scale(1.05); } }
-.hot-badge { display:inline-flex;align-items:center;gap:4px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px; }
-.pickup-badge { display:inline-flex;align-items:center;gap:4px;background:#F59E0B;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px; }
+.hot-badge { display:inline-flex;align-items:center;gap:4px;background:#ef4444;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px;animation:hjBadgePulse 1.5s ease-in-out infinite; }
+.pickup-badge { display:inline-flex;align-items:center;gap:4px;background:#F59E0B;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px;animation:hjBadgePulseY 1.8s ease-in-out infinite; }
+@keyframes hjBadgePulse { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0.5)} 50%{box-shadow:0 0 0 5px rgba(239,68,68,0)} }
+@keyframes hjBadgePulseY { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0.5)} 50%{box-shadow:0 0 0 5px rgba(245,158,11,0)} }
 .region-btn { display:block;padding:0.5rem 0.75rem;background:#fff;border:1px solid #e5e7eb;border-radius:0.5rem;font-size:0.8rem;font-weight:700;color:#374151;text-decoration:none;text-align:center;transition:all 0.15s; }
 .region-btn:hover { background:#eff6ff;border-color:#1A56DB;color:#1A56DB; }
 .region-group-title { font-size:0.7rem;font-weight:900;color:#9ca3af;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;margin-top:0.75rem; }
@@ -174,9 +176,37 @@ include __DIR__ . '/parts/header.php';
         </div>
         <h1 class="home-hero__title">
           あなたのビジネスに<br>
-          <span style="background:linear-gradient(135deg,#F59E0B,#FBBF24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">最適な補助金</span>
+          最適な<span id="hjTypeWord" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block;"></span><span id="hjTypeCursor" style="display:inline-block;width:3px;height:0.85em;background:linear-gradient(135deg,#F59E0B,#FBBF24);margin-left:2px;vertical-align:middle;border-radius:2px;animation:hjBlink 0.7s step-end infinite;"></span>
           を見つけよう
         </h1>
+        <style>
+        @keyframes hjBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+        </style>
+        <script>
+        (function(){
+          var words=['補助金','助成金','交付金','融資','給付金'];
+          var el=document.getElementById('hjTypeWord');
+          var cur=document.getElementById('hjTypeCursor');
+          if(!el) return;
+          var wi=0, ci=words[0].length, deleting=true;
+          function tick(){
+            var w=words[wi];
+            if(!deleting){
+              ci++;
+              el.textContent=w.slice(0,ci);
+              if(ci>=w.length){ deleting=true; setTimeout(tick,2000); return; }
+              setTimeout(tick,100+Math.random()*60);
+            } else {
+              ci--;
+              el.textContent=w.slice(0,ci);
+              if(ci<=0){ deleting=false; wi=(wi+1)%words.length; setTimeout(tick,350); return; }
+              setTimeout(tick,45+Math.random()*30);
+            }
+          }
+          el.textContent=words[0];
+          setTimeout(tick,2000);
+        })();
+        </script>
         <p class="home-hero__desc">
           国・都道府県・市区町村の補助金・助成金情報を一元管理。
           補助金名・業種・金額・地域で絞り込んで、申請可能な補助金を今すぐ確認できます。
@@ -304,7 +334,7 @@ include __DIR__ . '/parts/header.php';
                 </p>
               </div>
               <?php if ($ci['status'] && !$is_past) : ?>
-                <span style="flex-shrink:0;font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:99px;background:<?php echo ($ci['status']==='公募中'||$ci['status']==='募集中')?'rgba(34,197,94,0.25)':'rgba(96,165,250,0.25)';?>;color:<?php echo ($ci['status']==='公募中'||$ci['status']==='募集中')?'#86efac':'#93c5fd';?>;"><?php echo esc_html($ci['status']); ?></span>
+                <span style="flex-shrink:0;font-size:0.65rem;font-weight:700;padding:1px 6px;border-radius:99px;background:<?php echo ($ci['status']==='公募中'||$ci['status']==='募集中')?'rgba(34,197,94,0.25)':'rgba(96,165,250,0.25)';?>;color:<?php echo ($ci['status']==='公募中'||$ci['status']==='募集中')?'#86efac':'#93c5fd';?>;<?php echo ($ci['status']==='公募中'||$ci['status']==='募集中') ? 'animation:hjStatusPulse 1.4s ease-in-out infinite;' : ''; ?>"><?php echo esc_html($ci['status']); ?></span>
               <?php endif; ?>
             </a>
             <?php endforeach; ?>

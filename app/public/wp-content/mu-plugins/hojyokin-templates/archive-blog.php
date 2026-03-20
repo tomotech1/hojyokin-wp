@@ -5,11 +5,28 @@
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$paged    = get_query_var('paged') ?: 1;
+$paged    = max( 1, get_query_var('paged') ?: ( isset($_GET['paged']) ? intval($_GET['paged']) : 1 ) );
 $per_page = 12;
 
-$cat_slug = get_query_var('category_name') ?: '';
-$tag_slug = get_query_var('tag') ?: '';
+// カテゴリー/タグアーカイブの場合はWPのクエリオブジェクトから取得
+$queried_obj = get_queried_object();
+$cat_slug = '';
+$tag_slug = '';
+$current_term_name = '';
+$current_term_desc = '';
+
+if ( is_category() && $queried_obj ) {
+  $cat_slug         = $queried_obj->slug;
+  $current_term_name = $queried_obj->name;
+  $current_term_desc = $queried_obj->description;
+} elseif ( is_tag() && $queried_obj ) {
+  $tag_slug         = $queried_obj->slug;
+  $current_term_name = $queried_obj->name;
+  $current_term_desc = $queried_obj->description;
+} else {
+  $cat_slug = get_query_var('category_name') ?: '';
+  $tag_slug = get_query_var('tag') ?: '';
+}
 
 $args = array(
   'post_type'      => 'post',
@@ -32,13 +49,34 @@ include __DIR__ . '/parts/header.php';
 <nav class="breadcrumb bg-hj-bg">
   <a href="<?php echo esc_url( home_url( '/' ) ); ?>">ホーム</a>
   <span class="bc-sep">/</span>
-  <span class="bc-current">補助金コラム</span>
+  <a href="<?php echo esc_url( home_url( '/blog/' ) ); ?>" class="bc-link">補助金コラム</a>
+  <?php if ( $current_term_name ) : ?>
+    <span class="bc-sep">/</span>
+    <span class="bc-current"><?php echo esc_html( $current_term_name ); ?></span>
+  <?php else : ?>
+    <span class="bc-sep">/</span>
+    <span class="bc-current">一覧</span>
+  <?php endif; ?>
 </nav>
 
 <!-- ヘッダー -->
 <section style="background:linear-gradient(135deg,#0a2540,#1A6B3C);padding:2.5rem 1rem;text-align:center;color:#fff;">
-  <h1 style="font-size:1.75rem;font-weight:900;margin-bottom:0.5rem;color:#fff;">📰 補助金コラム</h1>
-  <p style="color:rgba(255,255,255,0.8);font-size:1rem;">補助金・助成金に関する最新情報・申請ガイド・業種別解説をお届けします</p>
+  <h1 style="font-size:1.75rem;font-weight:900;margin-bottom:0.5rem;color:#fff;">
+    <?php if ( $current_term_name ) : ?>
+      📂 <?php echo esc_html( $current_term_name ); ?>
+    <?php else : ?>
+      📰 補助金コラム
+    <?php endif; ?>
+  </h1>
+  <p style="color:rgba(255,255,255,0.8);font-size:1rem;">
+    <?php if ( $current_term_desc ) : ?>
+      <?php echo esc_html( $current_term_desc ); ?>
+    <?php elseif ( $current_term_name ) : ?>
+      「<?php echo esc_html( $current_term_name ); ?>」カテゴリーの記事一覧です
+    <?php else : ?>
+      補助金・助成金に関する最新情報・申請ガイド・業種別解説をお届けします
+    <?php endif; ?>
+  </p>
 </section>
 
 <!-- カテゴリフィルタ -->
