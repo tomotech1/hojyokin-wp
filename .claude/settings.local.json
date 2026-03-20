@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm --version)",
+      "Bash(cd:*)",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.29+0/bin/win64/php.exe\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\n\"$PHP_BIN\" wp-cli.phar --path=\"$WP_PATH\" --allow-root option get siteurl 2>&1)",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.29+0/bin/win64/php.exe\"\nWP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\n\"$PHP_BIN\" \"$WP_PHAR\" --path=\"$WP_PATH\" --allow-root option get siteurl 2>&1)",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\"\nPHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\"\nWP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\nURL=\"http://localhost:10016\"\n\n\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root plugin list 2>&1 | grep -v \"imagick\")",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\" PHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\" WP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\" WP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\" URL=\"http://localhost:10016\" __NEW_LINE_43501289910148df__ \"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root plugin activate hojyokin-assets)",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\" PHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\" WP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\" WP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\" URL=\"http://localhost:10016\" __NEW_LINE_4af40aa7c79e97d0__ \"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root rewrite structure '/%postname%/')",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\" PHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\" WP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\" WP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\" URL=\"http://localhost:10016\" __NEW_LINE_a9fa1562ce5b5587__ echo \"=== テーマ ===\")",
+      "Bash(\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root theme list)",
+      "Read(//c/Users/apple/Local Sites/hojyokin-wp/**)",
+      "Bash(\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root plugin list)",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\"\nPHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\"\nWP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\nURL=\"http://localhost:10016\"\n\n\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root plugin activate hojyokin-assets 2>&1 | grep -v \"imagick\")",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\" PHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\" WP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\" WP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\" URL=\"http://localhost:10016\" __NEW_LINE_97970090669e9aec__ echo \"=== フロントページ設定 ===\" \"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root option get show_on_front)",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\"\nPHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\"\nWP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\nURL=\"http://localhost:10016\"\n\n\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root \\\\\n  eval-file \"C:/Users/apple/Local Sites/hojyokin-wp/scripts/create-pseo-posts.php\" \\\\\n  --dry-run=1 2>&1 | grep -v \"imagick\")",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\"\nPHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\"\nWP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\nURL=\"http://localhost:10016\"\n\n\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root \\\\\n  eval-file \"C:/Users/apple/Local Sites/hojyokin-wp/scripts/create-pseo-posts.php\" 2>&1 | grep -v \"imagick\")",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\" PHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\" WP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\" WP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\" URL=\"http://localhost:10016\" __NEW_LINE_d7f1731c77562d3c__ \"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root rewrite structure '/%postname%/' --hard)",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\"\nPHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\"\nWP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\nURL=\"http://localhost:10016\"\n\n\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root \\\\\n  eval-file \"C:/Users/apple/Local Sites/hojyokin-wp/scripts/pseo-bulk-generate.php\" 2>&1 | grep -v \"imagick\")",
+      "Bash(PHP_BIN=\"C:/Users/apple/AppData/Roaming/Local/lightning-services/php-8.2.27+1/bin/win64/php.exe\"\nPHP_INI=\"C:/Users/apple/AppData/Roaming/Local/run/Wfdg0Y9_C/conf/php/php.ini\"\nWP_PHAR=\"C:/Users/apple/Local Sites/vtuber-wp/wp-cli.phar\"\nWP_PATH=\"C:/Users/apple/Local Sites/hojyokin-wp/app/public\"\nURL=\"http://localhost:10016\"\n\n\"$PHP_BIN\" -c \"$PHP_INI\" \"$WP_PHAR\" --path=\"$WP_PATH\" --url=\"$URL\" --allow-root \\\\\n  user list --fields=ID,user_login,user_email,roles --format=table 2>&1 | grep -v \"imagick\")",
+      "Bash(grep:*)",
+      "Bash(command -v wp)",
+      "Bash(curl -s --max-time 5 \"http://localhost:10016/\")",
+      "Bash(curl -v --max-time 5 \"http://localhost:10016/\")",
+      "Bash(curl -s --max-time 10 http://localhost:10016/wp-json/wp/v2/posts?per_page=1)",
+      "Bash(curl -s --max-time 10 http://localhost:10016/wp-json/)",
+      "Bash(find C:/Users/apple/AppData/Roaming/Local -name *.conf)",
+      "Bash(node scripts/create-pseo-articles.mjs --dry-run --limit=5)",
+      "Bash(command -v cloudflared)",
+      "Bash(cloudflared --version)",
+      "Bash(curl -sv --max-time 15 \"https://and-scored-alter-administered.trycloudflare.com/\")",
+      "Bash(curl -s --max-time 15 -L https://and-scored-alter-administered.trycloudflare.com/)",
+      "Bash(curl -s --max-time 15 https://and-scored-alter-administered.trycloudflare.com/)",
+      "Bash(node \"C:/Users/apple/Local Sites/vtuber-wp/node_modules/.bin/tailwindcss\" -i ./assets/css/tailwind.css -o ./app/public/wp-content/plugins/hojyokin-assets/output.css --config ./tailwind.config.js --minify)",
+      "Bash(node:*)",
+      "Bash(curl:*)",
+      "Bash(cat:*)"
+    ]
+  }
+}

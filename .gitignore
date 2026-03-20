@@ -1,0 +1,27 @@
+.env
+node_modules/
+*.log
+app/sql/
+app/logs/
+
+# WordPress本体ファイル（個別除外）
+app/public/wp-admin/
+app/public/wp-includes/
+app/public/wp-*.php
+app/public/index.php
+app/public/xmlrpc.php
+app/public/license.txt
+app/public/readme.html
+app/public/local-xdebuginfo.php
+app/public/.htaccess
+
+# wp-content内の標準ディレクトリ
+app/public/wp-content/themes/
+app/public/wp-content/uploads/
+app/public/wp-content/upgrade/
+app/public/wp-content/languages/
+app/public/wp-content/index.php
+
+# pluginsは全除外 → hojyokin-assetsだけ復活
+app/public/wp-content/plugins/*
+!app/public/wp-content/plugins/hojyokin-assets/
