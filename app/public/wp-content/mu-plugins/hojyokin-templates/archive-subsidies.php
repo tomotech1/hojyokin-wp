@@ -636,4 +636,38 @@ function setView(v) {
 })();
 </script>
 
+<?php
+// ── Amazon アソシエイト ボックス（ディレクトリページ・タクソノミーアーカイブ） ──
+if ( defined( 'HJ_AMAZON_TAG' ) ) :
+	$amazon_keyword = '補助金 申請 おすすめ';
+	if ( $current_term ) {
+		$tn = $current_term->name;
+		if ( mb_strpos( $tn, 'IT' ) !== false || mb_strpos( $tn, 'デジタル' ) !== false ) {
+			$amazon_keyword = 'IT導入補助金 申請';
+		} elseif ( mb_strpos( $tn, 'ものづくり' ) !== false ) {
+			$amazon_keyword = 'ものづくり補助金 申請';
+		} elseif ( mb_strpos( $tn, '持続化' ) !== false ) {
+			$amazon_keyword = '小規模事業者持続化補助金';
+		} elseif ( mb_strpos( $tn, '創業' ) !== false || mb_strpos( $tn, '起業' ) !== false ) {
+			$amazon_keyword = '起業 補助金 申請';
+		} elseif ( mb_strpos( $tn, 'DX' ) !== false ) {
+			$amazon_keyword = 'DX 補助金 IT化';
+		}
+	}
+	$amazon_url = 'https://www.amazon.co.jp/s?k=' . rawurlencode( $amazon_keyword ) . '&tag=' . HJ_AMAZON_TAG;
+	?>
+<div class="max-w-site mx-auto px-5 pb-10">
+  <div class="hj-amazon-footer">
+    <div class="hj-amazon-footer__title">📚 関連書籍・参考資料</div>
+    <div class="hj-amazon-search">
+      <div class="hj-amazon-search__header">📖 もっと詳しく学ぶ</div>
+      <div class="hj-amazon-search__desc">補助金の申請ノウハウや活用事例を書籍でさらに深めてみませんか？Amazonで関連書籍を探せます。</div>
+      <a href="<?php echo esc_url( $amazon_url ); ?>" class="hj-amazon-search__btn" target="_blank" rel="noopener nofollow">
+        🛒 Amazonで「<?php echo esc_html( $amazon_keyword ); ?>」を検索
+      </a>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
+
 <?php include __DIR__ . '/parts/footer.php'; ?>

@@ -200,7 +200,19 @@ include __DIR__ . '/parts/header.php';
     <div class="mt-8 pt-6 border-t border-hj-border">
       <div class="bg-hj-hero rounded-2xl p-6 flex items-start gap-5">
         <div class="flex-shrink-0">
-          <?php echo get_avatar( $author_id, 72, '', '', array( 'class' => 'rounded-2xl' ) ); ?>
+          <?php
+          $logo_id  = get_theme_mod( 'custom_logo' );
+          $logo_url = $logo_id ? wp_get_attachment_image_url( $logo_id, 'thumbnail' ) : '';
+          if ( $logo_url ) :
+          ?>
+            <img src="<?php echo esc_url( $logo_url ); ?>"
+                 alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>"
+                 class="rounded-2xl"
+                 width="72" height="72"
+                 style="width:72px;height:72px;object-fit:contain;background:#fff;border:1px solid #D1E7D9;padding:4px;">
+          <?php else : ?>
+            <?php echo get_avatar( $author_id, 72, '', '', array( 'class' => 'rounded-2xl' ) ); ?>
+          <?php endif; ?>
         </div>
         <div>
           <p style="font-size:12px;" class="font-bold text-hj-muted mb-1">著者</p>
